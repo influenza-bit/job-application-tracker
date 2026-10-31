@@ -8,8 +8,6 @@ import applicationsRouter from './routes/applications.routes.js';
 import YAML from 'yamljs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// import authRouter from './routes/auth.routes.js';
-import { changePassword, deleteAccount, login, logout, signup } from './auth.js';
 import { createEvent, deleteEvent, editEvent, getEvents } from './calendar.js';
 import {
   getApplied,
@@ -36,13 +34,15 @@ const swaggerDocument = YAML.load(
   path.join(__dirname, 'swagger.yaml')
 );
 
-// CORS - allow frontend to communicate with backend
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "http://localhost:5174"
-    ],
-    credentials: true
+  origin: allowedOrigins,
+  credentials: true,
 }));
 
 // Middleware to parse JSON request bodies
@@ -93,8 +93,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 server.on('error', (error) => {
