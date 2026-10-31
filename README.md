@@ -4,6 +4,17 @@ A full-stack web application designed to help job seekers organise, manage and t
 
 **[Live Demo](https://job-application-tracker-theta-taupe.vercel.app/)**
 
+## Demo Account
+
+Want to explore the application? Use the following test account:
+
+| Field | Credentials |
+|---|---|
+| Email | `test@test.com` |
+| Password | `123456` |
+
+*Please use this account for demonstration purposes only. Avoid entering personal or sensitive information.*
+
 ---
 
 ## Overview
