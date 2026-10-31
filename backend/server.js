@@ -37,11 +37,13 @@ const swaggerDocument = YAML.load(
 );
 
 // CORS - allow frontend to communicate with backend
-app.use(
-  cors({
-    origin: 'http://localhost:5173',
-  })
-);
+app.use(cors({
+    origin: [
+        "http://localhost:5173",
+        "http://localhost:5174"
+    ],
+    credentials: true
+}));
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
