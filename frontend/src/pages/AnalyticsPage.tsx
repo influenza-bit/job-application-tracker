@@ -16,6 +16,26 @@ import {
   type ApplicationsByDay,
 } from "../api/analytics";
 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar, Doughnut } from "react-chartjs-2";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend
+);
+
 export function AnalyticsPage() {
   const [applied, setApplied] = useState(0);
   const [onlineAssessments, setOnlineAssessments] = useState(0);
@@ -127,11 +147,6 @@ export function AnalyticsPage() {
       ? Math.round((interviews / totalApplications) * 100)
       : 0;
 
-  const maxDailyApplications = Math.max(
-    ...applicationsByDay.map((item) => item.count),
-    1
-  );
-
   const recentActivity = useMemo(() => {
     return applicationsByDay.map((item) => {
       const date = new Date(`${item.date}T00:00:00`);
@@ -188,16 +203,6 @@ export function AnalyticsPage() {
           word.slice(1).toLowerCase()
       )
       .join(" ");
-  }
-
-  function formatDateLabel(date: string) {
-    return new Date(`${date}T00:00:00`).toLocaleDateString(
-      "en-AU",
-      {
-        day: "numeric",
-        month: "short",
-      }
-    );
   }
 
   const stats = [
@@ -525,43 +530,84 @@ export function AnalyticsPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <div className="flex min-w-[700px] items-end gap-2">
-              {recentActivity.map((item) => {
-                const height =
-                  item.count === 0
-                    ? 4
-                    : Math.max(
-                        12,
-                        (item.count / maxDailyApplications) * 180
-                      );
-
-                return (
-                  <div
-                    key={item.date}
-                    className="flex flex-1 flex-col items-center justify-end gap-2"
-                  >
-                    <span className="text-[10px] font-extrabold text-[#7652B8]">
-                      {item.count > 0 ? item.count : ""}
-                    </span>
-
-                    <div
-                      className="w-full max-w-8 rounded-t-lg bg-[#9B78D1] transition-all hover:bg-[#7652B8]"
-                      style={{
-                        height: `${height}px`,
-                      }}
-                      title={`${item.count} application${
-                        item.count === 1 ? "" : "s"
-                      } on ${formatDateLabel(item.date)}`}
-                    />
-
-                    <span className="whitespace-nowrap text-[9px] font-bold text-[#A39AAA]">
-                      {item.label}
-                    </span>
-                  </div>
-                );
-              })}
+            <div className="h-56">
+              <Bar
+                data={{
+                  labels: recentActivity.map((d) => d.label),
+                  datasets: [
+                    {
+                      label: "Applications",
+                      data: recentActivity.map((d) => d.count),
+                      backgroundColor: "#9B78D1",
+                      borderRadius: 6,
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                }}
+              />
             </div>
+          )}
+      </section>
+
+      {/* Status breakdown */}
+      <section className="mt-6 rounded-2xl border border-[#D8C9E8] bg-white p-6 shadow-[4px_4px_0px_#D8C9E8]">
+        <div className="mb-6">
+          <h2 className="text-lg font-extrabold text-[#29233A]">
+            Status breakdown
+          </h2>
+
+          <p className="mt-1 text-xs font-semibold text-[#8A8199]">
+            Where all your applications currently stand.
+          </p>
+        </div>
+
+        {totalApplications === 0 ? (
+          <p className="rounded-xl bg-[#F8F5FC] p-5 text-center text-xs font-bold text-[#8A8199]">
+            No data yet.
+          </p>
+        ) : (
+          <div className="mx-auto h-64 max-w-xs">
+            <Doughnut
+              data={{
+                labels: [
+                  "Applied",
+                  "Online assessment",
+                  "Interview",
+                  "Offer",
+                  "Rejected",
+                ],
+                datasets: [
+                  {
+                    data: [
+                      applied,
+                      onlineAssessments,
+                      interviews,
+                      offers,
+                      rejections,
+                    ],
+                    backgroundColor: [
+                      "#7652B8",
+                      "#C56D45",
+                      "#C05282",
+                      "#67A978",
+                      "#8A6573",
+                    ],
+                    borderColor: "#ffffff",
+                    borderWidth: 2,
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: "bottom" } },
+              }}
+            />
           </div>
         )}
       </section>
